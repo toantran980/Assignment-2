@@ -20,6 +20,7 @@ Assignment 2/
 └── README.md                   # Project documentation
 ```
 
+
 ## Setup Instructions
 
 1. **Create and activate a virtual environment:**
@@ -35,6 +36,21 @@ Assignment 2/
    pip install numpy pandas torch typeguard
    ```
 3. **Run and test your scripts as needed.**
+
+---
+
+### If you rename the `venv` folder
+
+If you change the name of your virtual environment folder (e.g., from `venv` to `myenv`), update all commands and references to use the new folder name:
+
+```
+# On Windows PowerShell:
+.\myenv\Scripts\Activate.ps1
+# Or on Command Prompt:
+myenv\Scripts\activate.bat
+```
+
+If you use VS Code and have a `.vscode/settings.json` file with a Python interpreter path, update it to point to the new venv folder.
 
 ## Main Files
 
