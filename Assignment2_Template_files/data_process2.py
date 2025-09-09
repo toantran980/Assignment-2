@@ -38,9 +38,7 @@ def split_xy(df: pd.DataFrame, y_axis: int = -1) -> tuple[np.ndarray, np.ndarray
              as it will cause the autograder to fail, resulting in minimal credit.
     Note: A 2-line solution but can be tricky if you are not familiar with pandas.
     """
-    X = df.iloc[:, :-1].values
-    Y = df.iloc[:, y_axis].values
-    return X, Y
+    
 
 @typechecked
 def split_training_test(
