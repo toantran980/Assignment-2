@@ -41,7 +41,7 @@ def split_xy(df: pd.DataFrame, y_axis: int = -1) -> tuple[np.ndarray, np.ndarray
     X = df.drop(df.columns[y_axis], axis=1).to_numpy() 
     Y = df.iloc[:, y_axis].to_numpy() 
     return X, Y
-
+    
 
 @typechecked
 def split_training_test(
@@ -72,4 +72,3 @@ def split_training_test(
     X_test = X_data[split_index:]
     Y_test = Y_data[split_index:]
     return X_train, Y_train, X_test, Y_test
-

@@ -73,6 +73,7 @@ def normalize_array(arr: list[list[float]], out_file: str | None = None) -> int:
     if not arr or not arr[0]:
         return 0 #empty input
     
+    
     num_cols =len(arr[0]) 
 
     #Assume first column = idx (do nothing, copy it over)
