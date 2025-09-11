@@ -46,7 +46,7 @@ def load_dataset_np(filename: str) -> np.ndarray:
     Note: Numpy has a very useful csv file reader called genfromtxt.
     """
     data = np.genfromtxt(filename, delimiter=',', skip_header=1)
-    return data
+    return data.tolist()
 
 @typechecked
 def normalize_array(arr: list[list[float]], out_file: str | None = None) -> int:
