@@ -141,7 +141,7 @@ def normalize_array_np(arr: np.ndarray, out_file: str | None = None) -> int:
     Note: The same function as normalize_array but using numpy to calculate the metrics.
     This function should be almost copy and paste with numpy functions.
     """
-        if arr.size == 0:
+    if arr.size == 0:
         return 0  # no data
 
     cols = arr.shape[1]
