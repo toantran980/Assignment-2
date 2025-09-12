@@ -71,54 +71,54 @@ def normalize_array(arr: list[list[float]], out_file: str | None = None) -> int:
     I would spend some time on this to make sure that all the equations for metrics are correct.
     """
     if not arr or not arr[0]:
-        return 0 #empty input
-    
-    
-    num_cols =len(arr[0]) 
+        return 0  # empty input
 
-    #Assume first column = idx (do nothing, copy it over)
-    start_col = 1
+    col_count = len(arr[0])
 
-    #Calculate mean, min, max, std for each feature (exclude idx)
-    means, mins, maxs, stds = [], [], [], []
-    for c in range(start_col, num_cols):
-        values = [row[c] for row in arr]
-        mean = sum(values) / len(values)
-        variance = sum((x-mean) ** 2 for x in values) / len(values)
-        std = math.sqrt(variance)
-        means.append(min(values))
-        maxs.append(max(values))
-        stds.append(std)
+    # first column is just an id, don’t touch it
+    skip = 1
 
-    #filter out rows with any outliers
-    filterd = []
+    # store stats for each column
+    avg_list, min_list, max_list, std_list = [], [], [], []
+    for col in range(skip, col_count):
+        col_vals = [row[col] for row in arr]
+        avg = sum(col_vals) / len(col_vals)
+        var = sum((x - avg) ** 2 for x in col_vals) / len(col_vals)
+        stdev = math.sqrt(var)
+        avg_list.append(avg)
+        min_list.append(min(col_vals))
+        max_list.append(max(col_vals))
+        std_list.append(stdev)
+
+    # throw out outliers
+    kept_rows = []
     for row in arr:
-        keep = True
-        for i, c in enumerate(range(start_col, num_cols)):
-            if stds[i] > 0 and abs(row[c] - means[i]) > 2 * stds[i]:
-                keep = False
+        ok = True
+        for i, col in enumerate(range(skip, col_count)):
+            if std_list[i] > 0 and abs(row[col] - avg_list[i]) > 2 * std_list[i]:
+                ok = False
                 break
-            if keep:
-                filterd.append(row)
-    
-    #normalize values
-    normalized = []
-    for row in filterd:
-        new_row = [row[0]] #keep idx unchanged
-        for i, c in enumerate(range(start_col,num_cols)):
-            if maxs[i] == mins[i]:
+        if ok:
+            kept_rows.append(row)
+
+    # normalize
+    final_rows = []
+    for row in kept_rows:
+        new_row = [row[0]]  # keep id
+        for i, col in enumerate(range(skip, col_count)):
+            if max_list[i] == min_list[i]:
                 new_row.append(0.0)
             else:
-                new_row.append((row[c] - means[i]) / (maxs[i] - mins[i]))
-        normalized.append(new_row)
-    
-    #save CSV
+                new_row.append((row[col] - min_list[i]) / (max_list[i] - min_list[i]))
+        final_rows.append(new_row)
+
+    # write file if needed
     if out_file:
         with open(out_file, "w", newline="") as f:
             writer = csv.writer(f)
-            writer.writerows(normalized)
+            writer.writerows(final_rows)
 
-    return len(normalized)
+    return len(final_rows)
     
 @typechecked
 def normalize_array_np(arr: np.ndarray, out_file: str | None = None) -> int:
@@ -141,3 +141,57 @@ def normalize_array_np(arr: np.ndarray, out_file: str | None = None) -> int:
     Note: The same function as normalize_array but using numpy to calculate the metrics.
     This function should be almost copy and paste with numpy functions.
     """
+        if arr.size == 0:
+        return 0  # no data
+
+    cols = arr.shape[1]
+    start = 1  # skip first column (id)
+
+    # stats for each column
+    avg_list, min_list, max_list, std_list = [], [], [], []
+    for col in range(start, cols):
+        col_data = arr[:, col]
+        avg = np.mean(col_data)
+        stdev = np.std(col_data)
+        min_val = np.min(col_data)
+        max_val = np.max(col_data)
+
+        avg_list.append(avg)
+        min_list.append(min_val)
+        max_list.append(max_val)
+        std_list.append(stdev)
+
+    # remove outliers
+    good_rows = []
+    for row in arr:
+        ok = True
+        for i, col in enumerate(range(start, cols)):
+            if std_list[i] > 0 and abs(row[col] - avg_list[i]) > 2 * std_list[i]:
+                ok = False
+                break
+        if ok:
+            good_rows.append(row)
+
+    if not good_rows:
+        return 0
+
+    good_arr = np.array(good_rows)
+
+    # normalize values
+    norm_rows = []
+    for row in good_arr:
+        new_row = [row[0]]  # keep id
+        for i, col in enumerate(range(start, cols)):
+            if max_list[i] == min_list[i]:
+                new_row.append(0.0)
+            else:
+                new_row.append((row[col] - min_list[i]) / (max_list[i] - min_list[i]))
+        norm_rows.append(new_row)
+
+    norm_arr = np.array(norm_rows)
+
+    # save file
+    if out_file:
+        np.savetxt(out_file, norm_arr, delimiter=",", fmt="%.6f")
+
+    return norm_arr.shape[0]
